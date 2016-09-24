@@ -5,7 +5,7 @@
 
 function powerassert_expand() {
   echo "" >&2
-  echo "expanded:"
+  echo "expanded:" >&2
   echo "" >&2
   echo "[[[ $@ ]]]" >&2
   echo "" >&2
@@ -88,7 +88,7 @@ function powerassert_double_point() {
     sed -e 's/\$/|/g ' |
     sed -e 's/| *$//' >&2
 
-  echo "${left_val}"
+  echo "${left_val}" >&2
 
   # indent
   echo -n "${sentence}" |
