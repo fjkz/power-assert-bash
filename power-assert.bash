@@ -3,6 +3,7 @@
 # Power Assert for Bash
 #
 
+# print the expanded sentense
 function powerassert_expand() {
   echo "" >&2
   echo "expanded:" >&2
@@ -28,8 +29,8 @@ function powerassert_diff() {
 
 # print as
 #
-# left:  AAA
-# right: BBB
+# $left:  AAA
+# $right: BBB
 #
 function powerassert_table() {
   left_name="$1"
@@ -98,6 +99,7 @@ function powerassert_double_point() {
   echo "${right_val}" >&2
 }
 
+# print descriptive messages
 function powerassert_describe() {
   file="$1"
   line="$2"
@@ -128,7 +130,7 @@ function powerassert_describe() {
     return
   fi
 
-  # case: <left> <operator> <right>
+  # case: [[[ <left_name> <operator> <right_name> ]]]
 
   # remove spaces and brackets
   equation=$(echo "${sentence}" |
@@ -233,7 +235,12 @@ function powerassert_describe() {
   esac
 }
 
+# substance of [[[ command
 function powerassert_bracket() {
+
+  # run in a sub shell for
+  # 1. applying +xve option only in this function
+  # 2. avoiding use local command
   (
     set +xve
 
@@ -241,7 +248,7 @@ function powerassert_bracket() {
     line="$2"
     shift 2
 
-    local argv=("$@")
+    argv=("$@")
     if [ "${argv[$# - 1]}" != "]]]" ]; then
       echo "[[[: missing ']]]'" >&2
       exit 2
@@ -253,13 +260,16 @@ function powerassert_bracket() {
 
     case "${code}" in
       0 )
+        # true
         exit 0
         ;;
       1 )
+        # false
         powerassert_describe "${file}" "${line}" "${argv[@]}"
         exit 1
         ;;
       * )
+        # other error
         echo "arguments: ${argv[@]}" >&2
         exit "${code}"
         ;;
@@ -267,5 +277,8 @@ function powerassert_bracket() {
   )
 }
 
+# define [[[ command as alias.
+# ${BASH_SOURCE} and ${LINENO} are expanded
+# where [[[ command is executed.
 shopt -s expand_aliases
 alias [[[='powerassert_bracket "${BASH_SOURCE}" "${LINENO}"'
