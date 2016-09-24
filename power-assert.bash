@@ -5,11 +5,10 @@
 
 # print the expanded sentense
 function powerassert_expand() {
-  echo "" >&2
-  echo "expanded:" >&2
-  echo "" >&2
-  echo "[[[ $@ ]]]" >&2
-  echo "" >&2
+  echo ""
+  echo "expanded:"
+  echo ""
+  echo "[[[ $@ ]]]"
 }
 
 # print diff
@@ -18,13 +17,13 @@ function powerassert_diff() {
   right_name="$2"
   left_val="$3"
   right_val="$4"
-  echo "" >&2
+  echo ""
   # change ---, +++ line
-  echo "--- ${left_name}" >&2
-  echo "+++ ${right_name}" >&2
+  echo "--- ${left_name}"
+  echo "+++ ${right_name}"
   diff -u <(echo "${left_val}") <(echo "${right_val}") |
     sed -e '/^---/d' |
-    sed -e '/^+++/d' >&2
+    sed -e '/^+++/d'
 }
 
 # print as
@@ -37,9 +36,9 @@ function powerassert_table() {
   right_name="$2"
   left_val="$3"
   right_val="$4"
-  echo "" >&2
-  echo -e "${left_name}: \t${left_val}" >&2
-  echo -e "${right_name}: \t${right_val}" >&2
+  echo ""
+  echo -e "${left_name}: \t${left_val}"
+  echo -e "${right_name}: \t${right_val}"
 }
 
 # print as
@@ -53,16 +52,16 @@ function powerassert_single_point() {
   val="$2"
 
   # print "|"
-  echo "${sentence}" |
+  echo "${sentence}"     |
     sed -e 's/[^\$]/ /g' |
-    sed -e 's/\$.*$/|/' >&2
+    sed -e 's/\$.*$/|/'
 
   # indent
-  echo -n "${sentence}" |
+  echo -n "${sentence}"  |
     sed -e 's/[^\$]/ /g' |
-    sed -e 's/\$.*$//' >&2
+    sed -e 's/\$.*$//'
 
-  echo "${val}" >&2
+  echo "${val}"
 }
 
 # print as
@@ -78,25 +77,25 @@ function powerassert_double_point() {
   left_val="$3"
 
   # print "| |"
-  echo "${sentence}" |
+  echo "${sentence}"     |
     sed -e 's/[^\$]/ /g' |
-    sed -e 's/\$/|/g ' |
-    sed -e 's/ .$//' >&2
+    sed -e 's/\$/|/g '   |
+    sed -e 's/ .$//'
 
   # print "|" and indent
-  echo -n "${sentence}" |
+  echo -n "${sentence}"  |
     sed -e 's/[^\$]/ /g' |
-    sed -e 's/\$/|/g ' |
-    sed -e 's/| *$//' >&2
+    sed -e 's/\$/|/g '   |
+    sed -e 's/| *$//'
 
-  echo "${left_val}" >&2
+  echo "${left_val}"
 
   # indent
-  echo -n "${sentence}" |
+  echo -n "${sentence}"  |
     sed -e 's/[^\$]/ /g' |
-    sed -e 's/\$.*$//' >&2
+    sed -e 's/\$.*$//'
 
-  echo "${right_val}" >&2
+  echo "${right_val}"
 }
 
 # print descriptive messages
@@ -107,23 +106,21 @@ function powerassert_describe() {
 
   sentence=$(head "${file}" -n "${line}" | tail -n 1)
 
-  echo "assertion error at ${file}: line ${line}" >&2
+  echo "assertion error at ${file}: line ${line}"
 
   # trim commant and spaces
   sentence=$(echo "${sentence}" |
-    sed -e 's/#.*$//' |
-    sed -e 's/^[[:space:]]*//' |
+    sed -e 's/#.*$//'           |
+    sed -e 's/^[[:space:]]*//'  |
     sed -e 's/[[:space:]]*$//')
 
   # expect sentence is one line
-  if [[ ! ${sentence} =~ ^\[\[\[.*\]\]\]$ ]]
-  then
+  if [[ ! ${sentence} =~ ^\[\[\[.*\]\]\]$ ]]; then
     return
   fi
 
-
-  echo "" >&2
-  echo "${sentence}  ->  false" >&2
+  echo ""
+  echo "${sentence}  ->  false"
 
   if [ "$#" -ne 3 ]; then
     powerassert_expand "$@"
@@ -133,7 +130,7 @@ function powerassert_describe() {
   # case: [[[ <left_name> <operator> <right_name> ]]]
 
   # remove spaces and brackets
-  equation=$(echo "${sentence}" |
+  equation=$(echo "${sentence}"                  |
     sed -e 's/^[[:space:]]*\[\[\[[[:space:]]*//' |
     sed -e 's/[[:space:]]*\]\]\][[:space:]]*$//')
 
@@ -141,7 +138,7 @@ function powerassert_describe() {
   right_name=""
 
   # match to $a ${a} "$a" "${a}"
-  if [[ ${equation} =~ ^\$[A-Za-z1-9?]+ ]] ||
+  if [[ ${equation} =~ ^\$[A-Za-z1-9?]+ ]]     ||
      [[ ${equation} =~ ^\$\{[A-Za-z1-9?]+\} ]] ||
      [[ ${equation} =~ ^\"\$[A-Za-z1-9?]+\" ]] ||
      [[ ${equation} =~ ^\"\$\{[A-Za-z1-9?]+\}\" ]]
@@ -149,7 +146,7 @@ function powerassert_describe() {
     left_name="${BASH_REMATCH[0]}"
   fi
 
-  if [[ ${equation} =~ \$[A-Za-z1-9?]+$ ]] ||
+  if [[ ${equation} =~ \$[A-Za-z1-9?]+$ ]]     ||
      [[ ${equation} =~ \$\{[A-Za-z1-9?]+\}$ ]] ||
      [[ ${equation} =~ \"\$[A-Za-z1-9?]+\"$ ]] ||
      [[ ${equation} =~ \"\$\{[A-Za-z1-9?]+\}\"$ ]]
@@ -179,15 +176,15 @@ function powerassert_describe() {
       if [ $(echo "${left_val}" | wc -l) -gt 1 ] ||
          [ $(echo "${right_val}" | wc -l) -gt 1 ]
       then
-        powerassert_diff \
+        powerassert_diff                 \
           "${left_name}" "${right_name}" \
           "${left_val}" "${right_val}"
         return
       fi
 
       if [ "${num_var}" -eq 2 ]; then
-        powerassert_table \
-          "${left_name}" "${right_name}" \
+        powerassert_table                     \
+          "${left_name}" "${right_name}"      \
           "\"${left_val}\"" "\"${right_val}\""
         return
       fi
@@ -203,10 +200,10 @@ function powerassert_describe() {
       ;;
 
     != )
-      echo "" >&2
-      echo "${left_name} == ${right_name}" >&2
-      echo " |" >&2
-      echo "\"${left_val}\"" >&2
+      echo ""
+      echo "${left_name} == ${right_name}"
+      echo " |"
+      echo "\"${left_val}\""
       return
       ;;
 
@@ -226,6 +223,7 @@ function powerassert_describe() {
       powerassert_single_point "${sentence}" "${val}"
       return
       ;;
+
     *)
       if [ "${num_var}" -ne 0 ]; then
         powerassert_expand "$@"
@@ -241,6 +239,7 @@ function powerassert_bracket() {
   # run in a sub shell for
   # 1. applying +xve option only in this function
   # 2. avoiding use local command
+  # 3. print all to stderr
   (
     set +xve
 
@@ -250,7 +249,7 @@ function powerassert_bracket() {
 
     argv=("$@")
     if [ "${argv[$# - 1]}" != "]]]" ]; then
-      echo "[[[: missing ']]]'" >&2
+      echo "[[[: missing ']]]'"
       exit 2
     fi
     argv=("${argv[@]:0:$(($#-1))}")
@@ -270,11 +269,11 @@ function powerassert_bracket() {
         ;;
       * )
         # other error
-        echo "arguments: ${argv[@]}" >&2
+        echo "arguments: ${argv[@]}"
         exit "${code}"
         ;;
     esac
-  )
+  ) >&2
 }
 
 # define [[[ command as alias.
