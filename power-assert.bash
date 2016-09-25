@@ -98,6 +98,21 @@ function powerassert_double_point() {
   echo "${right_val}"
 }
 
+# print stack trace
+function powerassert_print_stacktrace() {
+  echo ""
+  index=0
+  while frame=($(caller "${index}")); do
+    ((index++))
+    # do not print stacks in power assert
+    if [ "${frame[2]}" == "power-assert.bash" ]; then
+      continue
+    fi
+    # at function <function name> (<file name>:<line no>)
+    echo "at function ${frame[1]} (${frame[2]}:${frame[0]})"
+  done
+}
+
 # print descriptive messages
 function powerassert_describe() {
   file="$1"
@@ -265,11 +280,13 @@ function powerassert_bracket() {
       1 )
         # false
         powerassert_describe "${file}" "${line}" "${argv[@]}"
+        powerassert_print_stacktrace
         exit 1
         ;;
       * )
         # other error
         echo "arguments: ${argv[@]}"
+        powerassert_print_stacktrace
         exit "${code}"
         ;;
     esac

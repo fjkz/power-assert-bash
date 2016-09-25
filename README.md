@@ -19,11 +19,13 @@ A="HELLO WORLD"
 when we run the above script, the following message is printed.
 
 ```
-assertion error at sample.sh: line 3
+assertion error:
 
 [[[ "${A}" == "HELL WORLD" ]]]  ->  false
      |
      "HELLO WORLD"
+
+at function main (sample.sh:3)
 ```
 
 ## License
