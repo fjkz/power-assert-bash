@@ -113,15 +113,28 @@ function powerassert_print_stacktrace() {
   done
 }
 
+# Return error point: "<file name> <line no>"
+function powerassert_error_point() {
+  index=0
+  while frame=($(caller "${index}")); do
+    ((index++))
+    if [ "${frame[2]}" == "power-assert.bash" ]; then
+      continue
+    fi
+    # the first stack out of power assert
+    echo "${frame[2]}" "${frame[0]}"
+    return
+  done
+}
+
 # print descriptive messages
 function powerassert_describe() {
-  file="$1"
-  line="$2"
-  shift 2
+  err_point=($(powerassert_error_point))
 
-  sentence=$(head "${file}" -n "${line}" | tail -n 1)
+  sentence=$(head "${err_point[0]}" -n "${err_point[1]}" |
+             tail -n 1)
 
-  echo "assertion error at ${file}: line ${line}"
+  echo "assertion error:"
 
   # trim commant and spaces
   sentence=$(echo "${sentence}" |
@@ -248,19 +261,16 @@ function powerassert_describe() {
   esac
 }
 
-# substance of [[[ command
-function powerassert_bracket() {
+# power assert original [ command
+# print error description if it fails
+function [[[() {
 
   # run in a sub shell for
   # 1. applying +xve option only in this function
   # 2. avoiding use local command
-  # 3. print all to stderr
+  # 3. printing all to stderr
   (
     set +xve
-
-    file="$1"
-    line="$2"
-    shift 2
 
     argv=("$@")
     if [ "${argv[$# - 1]}" != "]]]" ]; then
@@ -279,7 +289,7 @@ function powerassert_bracket() {
         ;;
       1 )
         # false
-        powerassert_describe "${file}" "${line}" "${argv[@]}"
+        powerassert_describe "${argv[@]}"
         powerassert_print_stacktrace
         exit 1
         ;;
@@ -292,9 +302,3 @@ function powerassert_bracket() {
     esac
   ) >&2
 }
-
-# define [[[ command as alias.
-# ${BASH_SOURCE} and ${LINENO} are expanded
-# where [[[ command is executed.
-shopt -s expand_aliases
-alias [[[='powerassert_bracket "${BASH_SOURCE}" "${LINENO}"'
