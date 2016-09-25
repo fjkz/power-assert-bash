@@ -137,15 +137,16 @@ function powerassert_get_equation() {
     sed -e 's/[[:space:]]*\]\]\]$//'
 }
 
+# TODO: make regex matching with variables to be more pricise
+
 # get left term from equation string
 function powerassert_get_left_term() {
   equation="$1"
   # match to $a ${a} "$a" "${a}"
-  if [[ ${equation} =~ \$[A-Za-z1-9?]+ ]]     ||
-     [[ ${equation} =~ \$\{[A-Za-z1-9?]+\} ]] ||
-     [[ ${equation} =~ \"\$[A-Za-z1-9?]+\" ]] ||
-     [[ ${equation} =~ \"\$\{[A-Za-z1-9?]+\}\" ]]
-  then
+  if [[ ${equation} =~ ^\$[A-Za-z0-9_?]+     ||
+        ${equation} =~ ^\$\{[A-Za-z0-9_?]+\} ||
+        ${equation} =~ ^\"\$[A-Za-z0-9_?]+\" ||
+        ${equation} =~ ^\"\$\{[A-Za-z0-9_?]+\}\" ]]; then
     echo "${BASH_REMATCH[0]}"
   else
     echo ""
@@ -156,11 +157,10 @@ function powerassert_get_left_term() {
 function powerassert_get_right_term() {
   equation="$1"
   # match to $a ${a} "$a" "${a}"
-  if [[ ${equation} =~ \$[A-Za-z1-9?]+$ ]]     ||
-     [[ ${equation} =~ \$\{[A-Za-z1-9?]+\}$ ]] ||
-     [[ ${equation} =~ \"\$[A-Za-z1-9?]+\"$ ]] ||
-     [[ ${equation} =~ \"\$\{[A-Za-z1-9?]+\}\"$ ]]
-  then
+  if [[ ${equation} =~ \$[A-Za-z0-9_?]+$     ||
+        ${equation} =~ \$\{[A-Za-z0-9_?]+\}$ ||
+        ${equation} =~ \"\$[A-Za-z0-9_?]+\"$ ||
+        ${equation} =~ \"\$\{[A-Za-z0-9_?]+\}\"$ ]]; then
     echo "${BASH_REMATCH[0]}"
   else
     echo ""
