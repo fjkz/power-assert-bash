@@ -3,10 +3,10 @@
 # Power Assert for Bash
 #
 
-# print the extracted sentense
-function powerassert_extract() {
+# print the expanded sentense
+function powerassert_expand() {
   echo ""
-  echo "extracted:"
+  echo "expanded:"
   echo ""
   echo "[[[ $@ ]]]"
 }
@@ -123,7 +123,7 @@ function powerassert_describe() {
   echo "${sentence}  ->  false"
 
   if [ "$#" -ne 3 ]; then
-    powerassert_extract "$@"
+    powerassert_expand "$@"
     return
   fi
 
@@ -226,7 +226,7 @@ function powerassert_describe() {
 
     *)
       if [ "${num_var}" -ne 0 ]; then
-        powerassert_extract "$@"
+        powerassert_expand "$@"
       fi
       return
       ;;
@@ -277,7 +277,7 @@ function powerassert_bracket() {
 }
 
 # define [[[ command as alias.
-# ${BASH_SOURCE} and ${LINENO} are extracted
+# ${BASH_SOURCE} and ${LINENO} are expanded
 # where [[[ command is executed.
 shopt -s expand_aliases
 alias [[[='powerassert_bracket "${BASH_SOURCE}" "${LINENO}"'
