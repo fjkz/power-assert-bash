@@ -37,8 +37,10 @@ function powerassert_table() {
   left_val="$3"
   right_val="$4"
   echo ""
-  echo -e "${left_name}: \t${left_val}"
-  echo -e "${right_name}: \t${right_val}"
+  {
+    echo -e "${left_name}:\t${left_val}"
+    echo -e "${right_name}:\t${right_val}"
+  } | column -t -s $'\t'
 }
 
 # print as
